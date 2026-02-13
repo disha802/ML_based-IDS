@@ -1,70 +1,129 @@
+# 🛡️ Real-Time Intrusion Detection System (IDS) using Machine Learning
 
-Derived features include:
-- Flow duration
-- Packets per second
-- Bytes per second
-- Forward and backward packet counts
-- Inter-arrival times (IAT)
+## 📌 Project Overview
 
----
+This project implements a flow-based Intrusion Detection System (IDS)
+using supervised machine learning to detect Denial-of-Service (DoS)
+attacks from real-time network traffic.
 
-### Step 6: Machine Learning Model Training
+A controlled ICMP flood attack was simulated in a lab environment using
+two machines:
 
-Two separate models are trained:
+-   Attacker Machine -- Generates ICMP flood traffic\
+-   Victim Machine -- Captures traffic and runs the IDS pipeline
 
-#### Model A: Offline IDS Model
-- Trained only on benchmark dataset
-- Uses extracted flow features
-- Serves as a reference IDS
+The captured packet-level data is processed, labeled, converted into
+flows, and used for machine learning model training and evaluation.
 
-#### Model B: Real-Time IDS Model
-- Trained only on real-time captured data
-- Labeled manually as:
-  - Benign
-  - DoS
+------------------------------------------------------------------------
 
-Both models use the **same ML algorithm** (e.g., Random Forest or Logistic Regression) for fair comparison.
+## 🎯 Objectives
 
----
+-   Simulate a controlled ICMP Flood DoS attack
+-   Capture real-time network traffic
+-   Label packets using temporal attack correlation
+-   Convert packets into flow-based features
+-   Train and evaluate supervised ML models
+-   Compare benchmark dataset model vs real-time trained model
 
-### Step 7: Attack Simulation
-A controlled ICMP flood is generated from the attacker machine:
-- High-frequency ping requests
-- Targeting victim machine
-- Conducted in a closed lab environment
+------------------------------------------------------------------------
 
----
+## ⚙️ System Architecture
 
-### Step 8: Deployment and Comparison
-Both models are deployed on:
-- Live captured traffic
-- DoS attack traffic
+Attacker PC\
+⬇\
+Victim PC (Packet Capture using PyShark)\
+⬇\
+Packet Cleaning\
+⬇\
+Time-Based Labeling\
+⬇\
+Flow Aggregation\
+⬇\
+Feature Extraction\
+⬇\
+Machine Learning Model
 
-Evaluation criteria:
-- Detection accuracy
-- False positives
-- Sensitivity to DoS traffic
-- Generalization to unseen traffic
+------------------------------------------------------------------------
 
----
+## 🧪 Attack Simulation
 
-## Technologies Used
-- Python 3
-- PyShark
-- Wireshark / Tshark
-- Pandas, NumPy
-- Scikit-learn
-- CSV-based data pipelines
+-   Attack Type: ICMP Echo Request Flood (Network-layer DoS)
+-   Method: High-frequency ping requests
+-   Environment: Controlled local network
+-   Duration: \~20--30 seconds
 
----
+The attack created a measurable spike in packet rate, verified using
+Wireshark I/O graphs.
 
-## Outcome
-This project demonstrates:
-- The feasibility of building an ML-based IDS using real-time traffic
-- Differences between offline-trained and real-time-trained IDS models
-- Practical challenges in live IDS deployment
+------------------------------------------------------------------------
 
----
+## 📡 Packet Capture
 
-## Disclaimer
-All attack simulations were performed in a **controlled academic environment** for educational purposes only.
+Live traffic was captured using:
+
+-   Python
+-   PyShark
+-   Wireshark (TShark backend)
+
+Captured packet features: - Timestamp - Protocol - Source IP -
+Destination IP - Packet Length
+
+------------------------------------------------------------------------
+
+## 🧹 Data Preprocessing
+
+-   Removed non-IP packets
+-   Dropped missing values
+-   Removed zero-length packets
+-   Sorted by timestamp
+-   Ensured correct numeric types
+
+------------------------------------------------------------------------
+
+## 🏷 Packet Labeling
+
+Attack traffic was labeled using time-based correlation:
+
+-   Packets during high packet-rate window → DoS
+-   Remaining packets → Benign
+
+This follows standard IDS dataset labeling methodology.
+
+------------------------------------------------------------------------
+
+## 🔁 Flow Generation
+
+Packets were aggregated into 1-second network flows defined by:
+
+(Source IP, Destination IP, Protocol, Time Window)
+
+Extracted flow-level features: - Flow duration - Total packets - Total
+bytes - Packets per second - Bytes per second - Flow label (majority
+vote)
+
+The final dataset is flow-based and suitable for IDS model training.
+
+------------------------------------------------------------------------
+
+## 📊 Output Files
+
+-   cleaned_packets_5000.csv -- Clean packet-level data
+-   labeled_packets.csv -- Packet-level labeled dataset
+-   flow_dataset.csv -- Final flow-based dataset ready for ML training
+
+------------------------------------------------------------------------
+
+## 🚀 Future Work
+
+-   Train benchmark-dataset IDS model
+-   Train real-time dataset IDS model
+-   Compare detection performance
+-   Deploy real-time streaming IDS pipeline
+
+------------------------------------------------------------------------
+
+## 👩‍💻 Author
+
+Developed as part of an academic project on Machine Learning for Cyber
+Security.
